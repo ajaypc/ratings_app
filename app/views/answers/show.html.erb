@@ -1,0 +1,118 @@
+<p id="notice"><%= notice %></p>
+<script>
+  $(document).ready(function() {
+  $('#ansStar').raty({
+    score: <%= @answer.rating %>,
+    path: '/assets',
+	click: function(score, evt) {
+      $.ajax({
+	    headers: {'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'},
+        url: "/answers/<%="#{@answer.id}"%>?rating="+score,
+        type: 'PATCH',
+        data: { score: score }		
+      });
+    }
+  });
+  
+  //Populate comments...
+    $.ajax({
+	     headers: {'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'},
+	     type:'GET',
+         url:'/static_pages/getComments',
+         data :  {answerId:<%= @answer.id %>} ,
+		 async: false,
+         success : function(responseData)
+         {
+   		    for(i=0;i < responseData.length;i++) {
+			   var commentBlock = ("<p>"  + responseData[i].commentText +   "</p>");
+	           $('#idCommentBlock').append(commentBlock);
+			   var starBlock = ("<div " + "id=" + "cmntStart"+ responseData[i].id + ">" +  "</div>");
+			   $('#idCommentBlock').append(starBlock);
+			   window.idVar1 = responseData[i].id;
+			   alert(("cmntStart23").replace("cmntStart",""));
+			   $("#cmntStart"+ responseData[i].id).raty({
+                   score: responseData[i].rating,
+                   path: '/assets',
+				   click: function(score, evt) {				     
+				     $.ajax({
+	                 headers: {'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'},
+                     url: "/static_pages/updateCommentRating",
+                     type: 'GET',
+                     data: { rating: score, id: String($(this).attr('id')).replace("cmntStart","") }		
+                   });
+                    }
+               });
+			   
+			}
+			
+		 }		 
+	 });
+	 
+  
+    function submitComment(event) {
+     $.ajax({
+	     headers: {'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'},
+	     type:'GET',
+         url:'/static_pages/addComment',
+         data :  {commentText:idComment.value,answerId:<%= @answer.id %>,rating:1} ,
+		 async: false,
+         success : function(responseText)
+         {
+		    var commentBlock = ("<p>"  + idComment.value +  "</p>");
+	        $('#idCommentBlock').append(commentBlock);
+			var starBlock = ("<div " + "id=" + "cmntStart"+ responseText + ">" +  "</div>");
+			$('#idCommentBlock').append(starBlock);
+			window.idVar = responseText;
+			$("#cmntStart"+ responseText).raty({
+                   score: 0,
+                   path: '/assets',
+				   click: function(score, evt) {				     
+				     $.ajax({
+	                 headers: {'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'},
+                     url: "/static_pages/updateCommentRating",
+                     type: 'GET',
+                     data: { rating: score, id: window.idVar }		
+                   });
+                    }
+               });
+			   
+		 }		 
+	 });
+	 
+     //alert("Hello World " + payload);
+	 	 
+	 //document.getElementById("idAnswerBlock").append(answerBlock); 	 
+  }
+  
+  
+  document.getElementById("idSubmit").addEventListener("click", submitComment );
+
+});
+  
+</script>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Answertext</th>
+      <th>Ratings</th>
+	  <th> Stars </th>
+    </tr>
+  </thead>	
+  <tbody>
+ 	    <tr>        
+		<td><%= @answer.id %></td>
+        <td><%= @answer.answerText %></td>
+		<td><div id="ansStar"></div></td>
+        </tr>
+  </tbody>
+  <br/>
+    
+ 
+</table>
+
+<input type="text" name="answer" id="idComment">
+<button type="button" id="idSubmit" >Add Comment</button>
+<div id="idCommentBlock">
+</div>

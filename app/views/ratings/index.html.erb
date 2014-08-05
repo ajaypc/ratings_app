@@ -1,0 +1,62 @@
+<h1>Listing ratings</h1>
+
+  
+<script>
+$(document).ready(function() {
+  <% @ratings.each do |rating| %>
+  $("<%= "#id#{rating.id}"%>").raty({
+    score: <%= rating.score  %>,
+    path: '/assets',
+	click: function(score, evt) {
+      alert("Score is " + score + " evt is " + evt + " id is <%= "#id#{rating.id}"%>" );
+	  $.ajax({
+	    headers: {'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'},
+        url: "/ratings/<%= "#{rating.id}"%>?score="+score,
+        type: 'PATCH',
+        data: { score: score }		
+      });
+    }
+  });
+  <% end %>
+});
+</script>
+
+<!--
+<script>
+$(document).ready(function() {
+  alert("Gello");
+  $("#id1").raty({
+    score: 3,
+    path: '/assets',
+	click: function(score, evt) {
+      alert("Score is " + score + " evt is " + evt);
+    }
+  });
+});
+</script>
+-->
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Ratings</th>
+      <th>Stars</th>
+    </tr>
+  </thead>	
+  <tbody>
+    <tr>
+    <% @ratings.each do |rating| %>
+	    <tr>        
+		<td><%= rating.id %></td>
+        <td><%= rating.score %></td>
+		<td><div id="<%= "id#{rating.id}" %>"> </div></td>
+        </tr>
+		       
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Rating', new_rating_path %>

@@ -1,0 +1,44 @@
+<h1>Listing answers</h1>
+
+<script>
+$(document).ready(function() {
+  <% @answers.each do |answer| %>
+  $("<%= "#id#{answer.id}"%>").raty({
+    score: <%= answer.rating  %>,
+    path: '/assets'	,
+	readOnly : true
+  });
+  <% end %>
+});
+</script>
+
+<table>
+  <thead>
+    <tr>
+      <th>Answertext</th>
+      <th>Rating</th>
+      <th>Questionid</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @answers.each do |answer| %>
+      <tr>
+        <td><%= answer.answerText %></td>
+        <td><%= answer.rating %></td>
+        <td><%= answer.questionId %></td>
+		<td><div id="<%= "id#{answer.id}" %>"> </div></td>
+        <td><%= link_to 'Show', answer %></td>
+        <td><%= link_to 'Edit', edit_answer_path(answer) %></td>
+        <td><%= link_to 'Destroy', answer, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Answer', new_answer_path %>

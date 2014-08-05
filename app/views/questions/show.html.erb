@@ -1,0 +1,98 @@
+<p id="notice"><%= notice %></p>
+<script>
+
+$(document).ready(function() {
+  $('#star').raty({
+    score: <%= @question.rating %>,
+    path: '/assets',
+	click: function(score, evt) {
+	  alert("Clciked" + evt);
+      
+	  $.ajax({
+	    headers: {'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'},
+        url: '/static_pages/updateQuestionRating',
+        type: 'GET',
+        data: { id: <%= @question.id %> ,rating: score }		
+      });
+	  
+    }
+  });
+  
+  function submitAnswer(event) {
+     var response = '';
+     $.ajax({
+	     headers: {'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'},
+	     type:'GET',
+         url:'/static_pages/create',
+         data :  {answerText:idAnswer.value,questionId:<%= @question.id %>,rating:1} ,
+		 async: false,
+         success : function(responseText)
+         {
+            var answerBlock = ("<p>"  + "<a href= \"" + "/answers/" + responseText + "\">" + idAnswer.value +  "<a>" + "</p>");
+	        $('#idAnswerBlock').append(answerBlock);
+		 }		 
+	 });
+	 
+     //alert("Hello World " + payload);
+	 	 
+	 //document.getElementById("idAnswerBlock").append(answerBlock); 	 
+  }
+  
+  
+  document.getElementById("idSubmit").addEventListener("click", submitAnswer );
+  
+  //Now list all the answers for that particular question..
+  $.ajax({
+	     headers: {'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'},
+	     type:'GET',
+         url:'/static_pages/list',
+         data :  {questionId:<%= @question.id %>} ,
+		 async: false,
+         success : function(responseData)
+         {
+   		    for(i=0;i < responseData.length;i++) {
+			   var answerBlock = ("<p>"  + "<a href= \"" + "/answers/" + responseData[i].id + "\">" + responseData[i].answerText +  "<a>" + "</p>");
+	           $('#idAnswerBlock').append(answerBlock);
+			}
+			
+		 }		 
+	 });
+    
+});
+
+</script>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Question</th>
+      <th>Ratings</th>
+	  <th> Stars </th>
+    </tr>
+  </thead>	
+  <tbody>
+ 	    <tr>        
+		<td><%= @question.id %></td>
+        <td><%= @question.questionText %></td>
+		<td><%= @question.rating %></td>
+		<td><div id="star"></div></td>
+        </tr>
+  </tbody>
+  <br/>
+    
+ 
+</table>
+
+<input type="text" name="answer" id="idAnswer">
+<button type="button" id="idSubmit" >Submit Answer</button>
+<div id="idAnswerBlock">
+      
+
+  </div>
+
+<br/>
+
+
+<%= link_to 'Edit', edit_question_path(@question) %> |
+<%= link_to 'Back', questions_path %>

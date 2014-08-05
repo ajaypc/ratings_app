@@ -1,0 +1,21 @@
+<h1>Listing questions</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Questiontext</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @questions.each do |question| %>
+      <tr>
+        <td><%= question.questionText %></td>
+        <td><%= link_to 'Show', question %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
